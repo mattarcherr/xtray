@@ -10,11 +10,9 @@
 #include <X11/XKBlib.h>
 
 /* Global Vars */
-static int bh, mw, mh;
-static int mon = -1, screen;
+static int screen;
 static Display *display;
 static Window window, root, parentwindow;
-static XEvent event;
 static XIC xic;
 
 static void
@@ -29,11 +27,10 @@ static void
 keypress(XKeyEvent *ev)
 {
     char buf[64];
-    int len;
     KeySym ksym = NoSymbol;
     Status status;
 
-    len = XmbLookupString(xic, ev, buf, sizeof buf, &ksym, &status);
+    XmbLookupString(xic, ev, buf, sizeof buf, &ksym, &status);
 
     switch(ksym) {
         case XK_Escape: 
@@ -79,7 +76,7 @@ setup(void)
     XWindowAttributes pwa; 
     XGetWindowAttributes(display, parentwindow, &pwa);
 
-    // Create a simple window */
+    // Create Xwindow */
     swa.override_redirect = True;
 	swa.background_pixel = BlackPixel(display, screen);
 	swa.event_mask = ExposureMask | KeyPressMask | VisibilityChangeMask;
@@ -93,7 +90,6 @@ setup(void)
 	if ((xim = XOpenIM(display, NULL, NULL, NULL)) == NULL) {
         cleanup(); exit(0);
     }
-
 	xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
 	                 XNClientWindow, window, XNFocusWindow, window, NULL);
 
@@ -103,7 +99,6 @@ setup(void)
 }
 
 int main() {
-    int i = 0;
     // Open connection to X server
     if (!(display = XOpenDisplay(NULL)))
         exit(1);
