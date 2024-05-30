@@ -15,11 +15,28 @@ static Display *display;
 static Window window, root, parentwindow;
 static XIC xic;
 
+/* Functions */
+static void setup(void);
+static void run(void);
+static void keypress(XKeyEvent *);
+static void drawtray(void);
+static void cleanup(void);
+
 static void
 cleanup(void)
 {
     XUngrabKey(display, AnyKey, AnyModifier, root);
     XCloseDisplay(display);
+}
+
+static void
+drawtray(void)
+{
+    GC gc = XCreateGC(display, window, 0, NULL);
+    XSetForeground(display, gc, WhitePixel(display, screen));
+    XDrawArc(display, window, gc, 100, 70,  100, 100, 0, 360*64);
+    XDrawArc(display, window, gc, 100, 190, 100, 100, 0, 360*64);
+    XDrawArc(display, window, gc, 100, 310, 100, 100, 0, 360*64);
 }
 
 
@@ -96,6 +113,10 @@ setup(void)
 
     XMapRaised(display, window); // Maps the window and raises it to the top of the stack
     XSelectInput(display, window, FocusChangeMask | SubstructureNotifyMask | KeyPressMask);
+
+    XGrabKeyboard(display, root, True, GrabModeAsync, GrabModeAsync, CurrentTime);
+
+    drawtray();
 }
 
 int main() {
