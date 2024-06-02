@@ -46,6 +46,14 @@ drawtray(void)
 {
     GC gc = XCreateGC(display, window, 0, NULL); 
 
+    // Load font
+    XFontStruct *font = XLoadQueryFont(display, "fixed");
+    if (!font) {
+        fprintf(stderr, "Unable to load font\n");
+        exit(1);
+    }
+    XSetFont(display, gc, font->fid);
+
     int recWidth = w*3/5;
     int recHeight = h/10;
 
@@ -65,10 +73,13 @@ drawtray(void)
         // This is awful
         int gap = ((h - (((h/8)-1)*2)) - ( 5 * recHeight)) / 4;
         int recY = (h/8) + (i * ( recHeight + gap));
-        printf("%d\n", gap);
-        printf("%d\n", recX);
         XDrawRectangle(display, window, gc, recX, recY, recWidth, recHeight);
-        XDrawString(display, window, gc, recX+35, recY+20, labels[i], strlen(labels[i]));
+
+        // Calculate the starting position of the text to be centered
+        int tx = recX + (recWidth - XTextWidth(font, labels[i], strlen(labels[i]))) / 2;
+        int ty = recY + (recHeight + (font->ascent + font->descent)) / 2 - font->descent;
+
+        XDrawString(display, window, gc, tx, ty, labels[i], strlen(labels[i]));
     }
     // XDrawArc(display, window, gc, 100, 70,  100, 100, 0, 360*64);
     // XDrawArc(display, window, gc, 100, 190, 100, 100, 0, 360*64);
