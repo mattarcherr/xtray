@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h> // for exit()
+#include <stdlib.h> // for exit() and system()
 
 #include <X11/X.h>
 #include <X11/Xatom.h>
@@ -43,6 +43,33 @@ cleanup(void)
 {
     XUngrabKey(display, AnyKey, AnyModifier, root);
     XCloseDisplay(display);
+}
+
+static void
+select(void)
+{
+    switch (selection) {
+        case -1:
+            break;
+        case 0:
+            system("dunstify 'shutdown' "); 
+            break;
+        case 1:
+            system("dunstify 'restart' "); 
+            break;
+        case 2:
+            system("dunstify 'logout' "); 
+            break;
+        case 3:
+            system("dunstify 'sleep' "); 
+            break;
+        case 4:
+            system("dunstify 'cancel' "); 
+            cleanup();
+            exit(1);
+            break;
+    }
+
 }
 
 static void
@@ -155,7 +182,9 @@ keypress(XKeyEvent *ev)
             cleanup();
             exit(1); 
         case XK_Tab:
-            inc_selection();
+            inc_selection(); break;
+        case XK_Return:
+            select(); break;
         default: break;
     }
 }
@@ -165,7 +194,7 @@ static void
 run(void)
 {
     XEvent ev;
-
+    
     /* Main event loop */
     while (!XNextEvent(display, &ev)) {
         if (XFilterEvent(&ev, window))
