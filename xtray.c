@@ -11,6 +11,8 @@
 #include <X11/XKBlib.h>
 #include <string.h>
 
+#include "config.h"
+
 /* Global Vars */
 static int screen;
 static Display *display;
@@ -18,8 +20,10 @@ static Window window, root, parentwindow;
 static XIC xic;
 static GC gc;
 static XFontStruct* font;
-static int w, h;
+static int w = window_width;
+static int h = window_height;
 static int selection = -1;
+
 
 /* Functions */
 static void setup(void);
@@ -28,15 +32,6 @@ static void keypress(XKeyEvent *);
 static void drawtray(void);
 static void drawRectangles(int, int);
 static void cleanup(void);
-
-typedef struct {
-    unsigned int w, h;
-    Display *dpy;
-    Window win;
-    GC gc;
-} Draw;
-
-static Draw *drw;
 
 static void
 cleanup(void)
@@ -221,19 +216,9 @@ setup(void)
     XIM xim;
     XClassHint ch = {"xtray", "xtray"};
 
-    // drw->w = 300;
-    // drw->h = 500;
-
     XWindowAttributes pwa; 
     XGetWindowAttributes(display, parentwindow, &pwa);
-
-    w = 175;
-    h = 300;
-
-    int borderWidth = 1;
-    int leftPadding = 10;
-    int topPadding  = 40;
-
+    
     // Create Xwindow */
     swa.override_redirect = True;
 	swa.background_pixel = BlackPixel(display, screen);

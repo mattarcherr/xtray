@@ -1,4 +1,4 @@
-# ---------- Options ----------
+# ---------- OPTIONS ----------
 # Complier
 CC = cc
 
@@ -6,19 +6,18 @@ CC = cc
 BLD_DIR = build
 OBJ_DIR = $(BLD_DIR)/obj
 
-# ---------- Files ----------
+# ---------- FILES ----------
 TARGET  = $(BLD_DIR)/xtray
 
 OBJECTS = $(OBJ_DIR)/xtray.o
 
-HEADERS = 
+HEADERS = config.h
 
 # ---------- FLAGS/INCLUDES ----------
 LDFLAGS = -lX11
 CFLAGS  = -std=c99 -pedantic -Wall -I/usr/include/freetype2
 
-
-# ---------- Rules ----------
+# ---------- RULES ----------
 all: $(TARGET)
 
 run:
