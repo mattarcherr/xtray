@@ -20,10 +20,10 @@ static Window window, root, parentwindow;
 static XIC xic;
 static GC gc;
 static XFontStruct* font;
-static int w = window_width;
-static int h = window_height;
 static int selection = -1;
 
+static int w = window_width;
+static int h = window_height;
 
 /* Functions */
 static void setup(void);
@@ -87,7 +87,7 @@ inc_selection(void)
     
     XColor c;    
     
-    XSetForeground(display, gc, 0xFF0000);
+    XSetForeground(display, gc, sel_colour);
     
     const char* labels[5] =
     {
@@ -137,7 +137,6 @@ drawtray(void)
 static void
 drawRectangles(int recWidth, int recHeight)
 {
-    XSetForeground(display, gc, 0xFFFFFF);
     const char* labels[5] =
     {
         "Shutdown",
@@ -153,6 +152,10 @@ drawRectangles(int recWidth, int recHeight)
         int gap = ((h - (((h/8)-1)*2)) - ( 5 * recHeight)) / 4;
         int recY = (h/8) + (i * ( recHeight + gap));
         XDrawRectangle(display, window, gc, recX, recY, recWidth, recHeight);
+        
+        XSetForeground(display, gc, btn_colour);
+        XFillRectangle(display, window, gc, recX, recY, recWidth+1, recHeight+1);
+        XSetForeground(display, gc, 0xFFFFFF);
         
         // Calculate the starting position of the text to be centered
         int tx = recX + (recWidth - XTextWidth(font, labels[i], strlen(labels[i]))) / 2;
@@ -221,7 +224,7 @@ setup(void)
     
     // Create Xwindow */
     swa.override_redirect = True;
-	swa.background_pixel = BlackPixel(display, screen);
+	swa.background_pixel = bg_colour;
 	swa.event_mask = ExposureMask | KeyPressMask | VisibilityChangeMask;
     swa.border_pixel = WhitePixel(display, screen);
     window = XCreateWindow(display, root, pwa.width-(w+leftPadding+(borderWidth*2)), topPadding, w, h, borderWidth,
