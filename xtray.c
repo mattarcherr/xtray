@@ -68,18 +68,18 @@ select(void)
 }
 
 static void
-inc_selection(void)
+set_selection(int slc)
 {
     int recWidth = w*3/5;
     int recHeight = h/10;
-    
-    if (selection < (5-1))
+
+    if (slc >= 5 || slc == -1)
     {
-        ++selection;
-    } else {
         drawRectangles(recWidth, recHeight);
         selection = -1;
         return;
+    } else {
+        selection = slc;
     }
     
     
@@ -165,6 +165,30 @@ drawRectangles(int recWidth, int recHeight)
     }
 }
 
+static void
+mouse_mv(XMotionEvent* xme)
+{
+    int mx = xme->x;
+    int my = xme->y;
+    
+    int recWidth = w*3/5;
+    int recHeight = h/10;
+    
+    int recX = (w-recWidth) / 2;
+    
+    for (int i = 0; i < 5; i++)
+    {
+        int gap = ((h - (((h/8)-1)*2)) - ( 5 * recHeight)) / 4;
+        int recY = (h/8) + (i * ( recHeight + gap));
+        if (mx >= recX && mx <= recX + recWidth &&
+            my >= recY && my <= recY + recHeight) {
+                set_selection(i);
+                return;
+            }
+    }
+    set_selection(-1);
+}
+
 
 static void
 keypress(XKeyEvent *ev)
@@ -180,7 +204,7 @@ keypress(XKeyEvent *ev)
             cleanup();
             exit(1); 
         case XK_Tab:
-            inc_selection(); break;
+            set_selection(selection+1); break;
         case XK_Return:
             select(); break;
         default: break;
@@ -201,13 +225,19 @@ run(void)
             case KeyPress:
                 keypress(&ev.xkey);
                 break;
+            case MotionNotify:
+                mouse_mv(&ev.xmotion);
+                break;
+            case ButtonPress:
+                select();
+                break;
             case DestroyNotify:
                 if (ev.xdestroywindow.window != window)
                     break;
                 cleanup();
                 exit(1);
         }
-
+    
     }
 
 }
@@ -218,7 +248,7 @@ setup(void)
     XSetWindowAttributes swa;
     XIM xim;
     XClassHint ch = {"xtray", "xtray"};
-
+    
     XWindowAttributes pwa; 
     XGetWindowAttributes(display, parentwindow, &pwa);
     
@@ -231,18 +261,18 @@ setup(void)
                             CopyFromParent, CopyFromParent, CopyFromParent,
                             CWOverrideRedirect | CWBackPixel | CWEventMask | CWBorderPixel, &swa);
     XSetClassHint(display, window, &ch);
-
-
+   	
+   	
    	/* input methods */
 	if ((xim = XOpenIM(display, NULL, NULL, NULL)) == NULL) {
         cleanup(); exit(0);
     }
 	xic = XCreateIC(xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
 	                 XNClientWindow, window, XNFocusWindow, window, NULL);
-
-
+    
+    
     XMapRaised(display, window); // Maps the window and raises it to the top of the stack
-    XSelectInput(display, window, FocusChangeMask | SubstructureNotifyMask | KeyPressMask);
+    XSelectInput(display, window, FocusChangeMask | SubstructureNotifyMask | KeyPressMask | PointerMotionMask | ButtonPressMask);
 
     XGrabKeyboard(display, root, True, GrabModeAsync, GrabModeAsync, CurrentTime);
 
