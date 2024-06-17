@@ -25,6 +25,8 @@ static int selection = -1;
 static int w = window_width;
 static int h = window_height;
 
+static int labelsCount = sizeof(labels)/sizeof(labels[0]);
+
 /* Functions */
 static void setup(void);
 static void run(void);
@@ -72,8 +74,8 @@ set_selection(int slc)
 {
     int recWidth = w*3/5;
     int recHeight = h/10;
-
-    if (slc >= 5 || slc == -1)
+    
+    if (slc >= labelsCount || slc == -1)
     {
         drawRectangles(recWidth, recHeight);
         selection = -1;
@@ -84,22 +86,11 @@ set_selection(int slc)
     
     
     drawRectangles(recWidth, recHeight);
-    
-    XColor c;    
-    
     XSetForeground(display, gc, sel_colour);
     
-    const char* labels[5] =
-    {
-        "Shutdown",
-        "Restart",
-        "Logout",
-        "Sleep",
-        "Cancel"
-    }; 
     
     int recX = (w-recWidth) / 2;
-    int gap = ((h - (((h/8)-1)*2)) - ( 5 * recHeight)) / 4;
+    int gap = ((h - (((h/8)-1)*2)) - ( labelsCount * recHeight)) / 4;
     int recY = (h/8) + (selection * ( recHeight + gap));
     XDrawRectangle(display, window, gc, recX, recY, recWidth, recHeight);
     
@@ -128,28 +119,15 @@ drawtray(void)
     int recHeight = h/10;
     
     drawRectangles(recWidth, recHeight);
-    
-    // XDrawArc(display, window, gc, 100, 70,  100, 100, 0, 360*64);
-    // XDrawArc(display, window, gc, 100, 190, 100, 100, 0, 360*64);
-    // XDrawArc(display, window, gc, 100, 310, 100, 100, 0, 360*64);
 }
 
 static void
 drawRectangles(int recWidth, int recHeight)
 {
-    const char* labels[5] =
-    {
-        "Shutdown",
-        "Restart",
-        "Logout",
-        "Sleep",
-        "Cancel"
-    }; 
-    
     int recX = (w-recWidth) / 2;
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < labelsCount; i++) {
         // This is awful
-        int gap = ((h - (((h/8)-1)*2)) - ( 5 * recHeight)) / 4;
+        int gap = ((h - (((h/8)-1)*2)) - ( labelsCount * recHeight)) / 4;
         int recY = (h/8) + (i * ( recHeight + gap));
         XDrawRectangle(display, window, gc, recX, recY, recWidth, recHeight);
         
@@ -176,9 +154,9 @@ mouse_mv(XMotionEvent* xme)
     
     int recX = (w-recWidth) / 2;
     
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < labelsCount; i++)
     {
-        int gap = ((h - (((h/8)-1)*2)) - ( 5 * recHeight)) / 4;
+        int gap = ((h - (((h/8)-1)*2)) - (labelsCount * recHeight)) / 4;
         int recY = (h/8) + (i * ( recHeight + gap));
         if (mx >= recX && mx <= recX + recWidth &&
             my >= recY && my <= recY + recHeight) {
@@ -273,9 +251,9 @@ setup(void)
     
     XMapRaised(display, window); // Maps the window and raises it to the top of the stack
     XSelectInput(display, window, FocusChangeMask | SubstructureNotifyMask | KeyPressMask | PointerMotionMask | ButtonPressMask);
-
+    
     XGrabKeyboard(display, root, True, GrabModeAsync, GrabModeAsync, CurrentTime);
-
+    
     
     drawtray();
 }
