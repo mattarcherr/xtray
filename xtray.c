@@ -1,3 +1,8 @@
+/*
+    2024 - Matthew Archer <matthewarcherr@gmail.com>
+    See LICENSE file for copywrite and license details
+*/
+
 #include <stdio.h>
 #include <stdlib.h> // for exit() and system()
 
@@ -49,19 +54,18 @@ select(void)
         case -1:
             break;
         case 0:
-            system("dunstify 'shutdown' "); 
+            system("shutdown now"); 
             break;
         case 1:
-            system("dunstify 'restart' "); 
+            system("reboot"); 
             break;
         case 2:
-            system("dunstify 'logout' "); 
+            system("kill -TERM $(pidof dwm)"); 
             break;
         case 3:
             system("dunstify 'sleep' "); 
             break;
         case 4:
-            system("dunstify 'cancel' "); 
             cleanup();
             exit(1);
             break;

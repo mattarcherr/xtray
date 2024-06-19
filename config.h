@@ -1,7 +1,7 @@
 static const int window_width  = 175;
 static const int window_height = 300;
     
-static const int borderWidth = 0;
+static const int borderWidth = 1;
 static const int leftPadding = 10;
 static const int topPadding  = 40;
 
@@ -11,7 +11,7 @@ static const int sel_colour = 0xFFFFFF;
 
 
 // Make sure to change the array size too
-const char* labels[5] =
+static const char* labels[5] =
 {
     "Shutdown",
     "Restart",
