@@ -17,7 +17,7 @@ INSTALL_LOC = /usr/local/bin
 
 # ---------- FLAGS/INCLUDES ----------
 LDFLAGS = -lX11
-CFLAGS  = -std=c99 -pedantic -Wall -I/usr/include/freetype2
+CFLAGS  = -std=c99 -pedantic -Wall -I/usr/include/freetype2 -D_XOPEN_SOURCE=700 -D_POSIX_C_SOURCE=200809L
 
 # ---------- RULES ----------
 all: $(TARGET)

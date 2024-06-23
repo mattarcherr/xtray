@@ -15,6 +15,7 @@
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
 #include <string.h>
+#include <time.h> // for nanosleep()
 
 #include "config.h"
 
@@ -222,6 +223,23 @@ run(void)
 
 }
 
+static void
+trygrabkeyboard(void)
+{
+    struct timespec req, rem;
+    req.tv_sec = 0;
+    req.tv_nsec = 1000000;
+
+    for (int i = 0; i < 1000; i++) {
+        if(XGrabKeyboard(display, root, True, GrabModeAsync, 
+                        GrabModeAsync, CurrentTime) == GrabSuccess)
+                        return;
+        nanosleep(&req, &rem);
+    }
+    fprintf(stderr, "Unable to grab keyboard\n");
+    cleanup(); exit(1);
+}
+
 static void 
 setup(void)
 {
@@ -254,8 +272,7 @@ setup(void)
     XMapRaised(display, window); // Maps the window and raises it to the top of the stack
     XSelectInput(display, window, FocusChangeMask | SubstructureNotifyMask | KeyPressMask | PointerMotionMask | ButtonPressMask);
     
-    XGrabKeyboard(display, root, True, GrabModeAsync, GrabModeAsync, CurrentTime);
-    
+    trygrabkeyboard();
     
     drawtray();
 }
