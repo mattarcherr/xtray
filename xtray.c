@@ -8,12 +8,12 @@
 
 #include <X11/X.h>
 #include <X11/Xatom.h>
-#include <X11/Xutil.h>
-#include <X11/Xlib.h>
-#include <X11/cursorfont.h>
-#include <X11/keysym.h>
 #include <X11/Xft/Xft.h>
 #include <X11/XKBlib.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/cursorfont.h>
+#include <X11/keysym.h>
 #include <string.h>
 
 #include "config.h"
@@ -24,7 +24,7 @@ static Display *display;
 static Window window, root, parentwindow;
 static XIC xic;
 static GC gc;
-static XFontStruct* font;
+static XFontStruct *font;
 static int selection = -1;
 
 static int w = window_width;
@@ -54,10 +54,10 @@ select(void)
         case -1:
             break;
         case 0:
-            system("shutdown now"); 
+            system("sudo shutdown now"); 
             break;
         case 1:
-            system("reboot"); 
+            system("sudo reboot"); 
             break;
         case 2:
             system("kill -TERM $(pidof dwm)"); 
@@ -79,8 +79,7 @@ set_selection(int slc)
     int recWidth = w*3/5;
     int recHeight = h/10;
     
-    if (slc >= labelsCount || slc == -1)
-    {
+    if (slc >= labelsCount || slc == -1) {
         drawRectangles(recWidth, recHeight);
         selection = -1;
         return;
@@ -115,7 +114,7 @@ drawtray(void)
     font = XLoadQueryFont(display, "fixed");
     if (!font) {
         fprintf(stderr, "Unable to load font\n");
-        exit(1);
+        cleanup(); exit(1);
     }
     XSetFont(display, gc, font->fid);
     
@@ -148,7 +147,7 @@ drawRectangles(int recWidth, int recHeight)
 }
 
 static void
-mouse_mv(XMotionEvent* xme)
+mouse_mv(XMotionEvent *xme)
 {
     int mx = xme->x;
     int my = xme->y;
@@ -158,8 +157,7 @@ mouse_mv(XMotionEvent* xme)
     
     int recX = (w-recWidth) / 2;
     
-    for (int i = 0; i < labelsCount; i++)
-    {
+    for (int i = 0; i < labelsCount; i++) {
         int gap = ((h - (((h/8)-1)*2)) - (labelsCount * recHeight)) / 4;
         int recY = (h/8) + (i * ( recHeight + gap));
         if (mx >= recX && mx <= recX + recWidth &&
@@ -262,19 +260,21 @@ setup(void)
     drawtray();
 }
 
-int main() {
+int 
+main() 
+{
     // Open connection to X server
     if (!(display = XOpenDisplay(NULL)))
         exit(1);
-
+    
     screen = DefaultScreen(display);
     root = RootWindow(display, screen);
-
+    
     parentwindow = root;
-
+    
     setup();
     run();
-
+    
     // Close connection to X server
     XCloseDisplay(display);
     return 0;
