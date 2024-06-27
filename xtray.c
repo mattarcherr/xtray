@@ -80,7 +80,9 @@ set_selection(int slc)
     int recWidth = w*3/5;
     int recHeight = h/10;
     
-    if (slc >= labelsCount || slc == -1) {
+    if (slc == -2) {
+        selection = labelsCount-1;
+    } else if (slc >= labelsCount || slc == -1) {
         drawRectangles(recWidth, recHeight);
         selection = -1;
         return;
@@ -139,7 +141,7 @@ drawRectangles(int recWidth, int recHeight)
         XFillRectangle(display, window, gc, recX, recY, recWidth+1, recHeight+1);
         XSetForeground(display, gc, 0xFFFFFF);
         
-        // Calculate the starting position of the text to be centered
+        // Calculate the starting position of the text
         int tx = recX + (recWidth - XTextWidth(font, labels[i], strlen(labels[i]))) / 2;
         int ty = recY + (recHeight + (font->ascent + font->descent)) / 2 - font->descent;
         
@@ -186,6 +188,10 @@ keypress(XKeyEvent *ev)
             exit(1); 
         case XK_Tab:
             set_selection(selection+1); break;
+        case XK_Down:
+            set_selection(selection+1); break;
+        case XK_Up:
+            set_selection(selection-1); break;
         case XK_Return:
             select(); break;
         default: break;
@@ -229,7 +235,7 @@ trygrabkeyboard(void)
     struct timespec req, rem;
     req.tv_sec = 0;
     req.tv_nsec = 1000000;
-
+    
     for (int i = 0; i < 1000; i++) {
         if(XGrabKeyboard(display, root, True, GrabModeAsync, 
                         GrabModeAsync, CurrentTime) == GrabSuccess)
