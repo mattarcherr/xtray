@@ -35,10 +35,14 @@ static int labelsCount = sizeof(labels)/sizeof(labels[0]);
 
 /* Functions */
 static void setup(void);
+static void tryGrabKeyboard(void);
 static void run(void);
-static void keypress(XKeyEvent *);
-static void drawtray(void);
+static void keyPress(XKeyEvent *);
+static void moveMouse(XMotionEvent *);
 static void drawRectangles(int, int);
+static void drawTray(void);
+static void setSelection(int);
+static void pickSelection(void);
 static void cleanup(void);
 
 static void
@@ -49,7 +53,7 @@ cleanup(void)
 }
 
 static void
-select(void)
+pickSelection(void)
 {
     switch (selection) {
         case -1:
@@ -75,7 +79,7 @@ select(void)
 }
 
 static void
-set_selection(int slc)
+setSelection(int slc)
 {
     int recWidth = w*3/5;
     int recHeight = h/10;
@@ -109,7 +113,7 @@ set_selection(int slc)
 }
 
 static void
-drawtray(void)
+drawTray(void)
 {
     gc = XCreateGC(display, window, 0, NULL); 
     
@@ -150,7 +154,7 @@ drawRectangles(int recWidth, int recHeight)
 }
 
 static void
-mouse_mv(XMotionEvent *xme)
+moveMouse(XMotionEvent *xme)
 {
     int mx = xme->x;
     int my = xme->y;
@@ -165,16 +169,16 @@ mouse_mv(XMotionEvent *xme)
         int recY = (h/8) + (i * ( recHeight + gap));
         if (mx >= recX && mx <= recX + recWidth &&
             my >= recY && my <= recY + recHeight) {
-                set_selection(i);
+                setSelection(i);
                 return;
             }
     }
-    set_selection(-1);
+    setSelection(-1);
 }
 
 
 static void
-keypress(XKeyEvent *ev)
+keyPress(XKeyEvent *ev)
 {
     char buf[64];
     KeySym ksym = NoSymbol;
@@ -187,13 +191,13 @@ keypress(XKeyEvent *ev)
             cleanup();
             exit(1); 
         case XK_Tab:
-            set_selection(selection+1); break;
+            setSelection(selection+1); break;
         case XK_Down:
-            set_selection(selection+1); break;
+            setSelection(selection+1); break;
         case XK_Up:
-            set_selection(selection-1); break;
+            setSelection(selection-1); break;
         case XK_Return:
-            select(); break;
+            pickSelection(); break;
         default: break;
     }
 }
@@ -210,13 +214,13 @@ run(void)
             continue;
         switch(ev.type) {
             case KeyPress:
-                keypress(&ev.xkey);
+                keyPress(&ev.xkey);
                 break;
             case MotionNotify:
-                mouse_mv(&ev.xmotion);
+                moveMouse(&ev.xmotion);
                 break;
             case ButtonPress:
-                select();
+                pickSelection();
                 break;
             case DestroyNotify:
                 if (ev.xdestroywindow.window != window)
@@ -230,7 +234,7 @@ run(void)
 }
 
 static void
-trygrabkeyboard(void)
+tryGrabKeyboard(void)
 {
     struct timespec req, rem;
     req.tv_sec = 0;
@@ -278,9 +282,9 @@ setup(void)
     XMapRaised(display, window); // Maps the window and raises it to the top of the stack
     XSelectInput(display, window, FocusChangeMask | SubstructureNotifyMask | KeyPressMask | PointerMotionMask | ButtonPressMask);
     
-    trygrabkeyboard();
+    tryGrabKeyboard();
     
-    drawtray();
+    drawTray();
 }
 
 int 
