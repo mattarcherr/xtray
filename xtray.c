@@ -59,16 +59,16 @@ pickSelection(void)
         case -1:
             break;
         case 0:
-            system("sudo shutdown now"); 
+            system(commands[0]);
             break;
         case 1:
-            system("sudo reboot"); 
+            system(commands[1]);
             break;
         case 2:
-            system("kill -TERM $(pidof dwm)"); 
+            system(commands[2]);
             break;
         case 3:
-            system("dunstify 'sleep' "); 
+            system(commands[3]);
             break;
         case 4:
             cleanup();

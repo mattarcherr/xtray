@@ -19,3 +19,12 @@ static const char* labels[5] =
     "Sleep",
     "Cancel"
 }; 
+
+static const char* commands[4] =
+{
+    "sudo shutdown now",
+    "sudo reboot",
+    "unset XPROFILE_SOURCED; kill -TERM $(pidof dwm)",
+    "dunstify 'sleep' ",
+};
+
